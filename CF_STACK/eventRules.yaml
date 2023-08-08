@@ -1,0 +1,26 @@
+Resources:
+  S3SourceEventBridgeRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: S3-BUCKET-TRIGGER-RULE-CF
+      Description: EventBridge rule for S3 source bucket events
+      EventPattern:
+        source:
+          - aws.s3
+        detail-type:
+          - Object Created
+        detail:
+          bucket:
+            name:
+              - data-source-s3-2-cf
+      State: ENABLED 
+      Targets:
+        - Arn: arn:aws:states:us-east-1:637592602151:stateMachine:CF-S3-SOURCE-STATE-MACHINE
+          RoleArn: arn:aws:iam::637592602151:role/LabRole
+          Id: S3_source
+
+
+Outputs:
+  S3EventBridgeRule:
+    Value: !Ref S3SourceEventBridgeRule
+

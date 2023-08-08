@@ -1,0 +1,101 @@
+Resources:
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: "637592602151"
+      DatabaseInput:
+        Name: dynamodb-data-source-table-cf
+
+  S3GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: "637592602151"
+      DatabaseInput:
+        Name: s3-data-source-cf   
+
+  AthenaDBGlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: "637592602151"
+      DatabaseInput:
+        Name: dynamodb-level2-athena-store-cf
+
+  AthenaS3GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: "637592602151"
+      DatabaseInput:
+        Name: s3-level2-athena-store-cf
+
+  GlueCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: Database-crawlerCF
+      Role: LabRole
+      DatabaseName: !Ref GlueDatabase
+      Targets:
+        DynamoDBTargets:
+          - Path: DataSourceCF
+
+  S3GlueCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: s3-crawlerCF
+      Role: LabRole
+      DatabaseName: !Ref S3GlueDatabase
+      Targets:
+        S3Targets:
+          - Path: s3://data-source-s3-2-cf/
+
+  AthenaDBGlueCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: Athena-DB-crawler-cf
+      Role: LabRole
+      DatabaseName: !Ref AthenaDBGlueDatabase
+      Targets:
+        S3Targets:
+          - Path: s3://data-source-extract-cf/DB-data-source/
+
+  AthenaS3GlueCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: Athena-S3-crawler-cf
+      Role: LabRole
+      DatabaseName: !Ref AthenaS3GlueDatabase
+      Targets:
+        S3Targets:
+          - Path: s3://data-source-extract-cf/S3-data-source/
+
+Outputs:
+  GlueDatabaseName:
+    Description: Glue Database Name
+    Value: !Ref GlueDatabase
+
+  S3GlueDatabaseName:
+    Description: S3 Glue Database Name
+    Value: !Ref S3GlueDatabase
+
+  AthenaDBGlueDatabase:
+    Description: S3 Glue Athena Database Name
+    Value: !Ref AthenaDBGlueDatabase
+
+  AthenaS3GlueDatabase:
+    Description: S3 Glue Athena Database Name
+    Value: !Ref AthenaS3GlueDatabase
+
+  GlueDBCrawler:
+    Description: Glue DB crawler Name
+    Value: !Ref GlueCrawler
+
+  GlueS3Crawler:
+    Description: S3 Glue crawler Name
+    Value: !Ref S3GlueCrawler
+
+  AthenaGlueDBCrawler:
+    Description: Glue DB Athena crawler Name
+    Value: !Ref AthenaDBGlueCrawler
+
+  AthenaGlueS3Crawler:
+    Description: S3 Glue Athena crawler Name
+    Value: !Ref AthenaS3GlueCrawler

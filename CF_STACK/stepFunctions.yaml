@@ -1,0 +1,47 @@
+Resources:
+  DBStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      DefinitionS3Location:
+        Bucket: csci-s3-lambda-cf-zip
+        Key: step-functions/DB_state-machine-definition.json
+      RoleArn: arn:aws:iam::637592602151:role/LabRole 
+      StateMachineName: CF-DB-SOURCE-STATE-MACHINE
+
+  S3StateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      DefinitionS3Location:
+        Bucket: csci-s3-lambda-cf-zip
+        Key: step-functions/S3_state-machine-definition.json
+      RoleArn: arn:aws:iam::637592602151:role/LabRole 
+      StateMachineName: CF-S3-SOURCE-STATE-MACHINE
+
+  AthenaDBStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      DefinitionS3Location:
+        Bucket: csci-s3-lambda-cf-zip
+        Key: step-functions/Athena_DB_state-machine-definition.json
+      RoleArn: arn:aws:iam::637592602151:role/LabRole 
+      StateMachineName: CF-Athena-DB-RESULT-STATE-MACHINE
+
+  AthenaS3StateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      DefinitionS3Location:
+        Bucket: csci-s3-lambda-cf-zip
+        Key: step-functions/Athena_S3_state-machine-definition.json
+      RoleArn: arn:aws:iam::637592602151:role/LabRole 
+      StateMachineName: CF-Athena-S3-RESULT-STATE-MACHINE
+
+
+Outputs:
+  DBStateMachineArn:
+    Value: !Ref DBStateMachine
+  S3StateMachineArn:
+    Value: !Ref S3StateMachine  
+  AthenaDBStateMachine:
+    Value: !Ref AthenaDBStateMachine
+  AthenaS3StateMachine:
+    Value: !Ref AthenaS3StateMachine 

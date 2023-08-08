@@ -1,0 +1,129 @@
+Resources:
+  SecretsManager:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: THE API KEY FOR NEWS API
+      Name: MyAPIKey1
+      SecretString: 
+        '{"MyAPIKeySecret":"a75a0e79c4014c1fac14209fa5c67be6"}'
+      Tags:
+        - Key: DEV
+          Value: CF
+
+  SourceDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: DataSourceCF
+      AttributeDefinitions:
+        - AttributeName: author
+          AttributeType: S
+      KeySchema:
+        - AttributeName: author
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      Tags:
+        - Key: DEV
+          Value: CF
+
+  DynamoDBTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn: SourceDBTable
+    Properties:
+      BatchSize: 1
+      Enabled: True
+      EventSourceArn: !GetAtt SourceDBTable.StreamArn
+      FunctionName: !Ref StreamLambdaTrigger
+      StartingPosition: LATEST
+
+  StreamLambdaTrigger:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: csci-s3-lambda-cf-zip
+        S3Key: DBStreamTrigger.py.zip
+      Description: THE DYNAMO DB STREAM TRIGGER
+      FunctionName: DBStreamTriggerCF
+      Handler: DBStreamTrigger.lambda_handler
+      Role: arn:aws:iam::637592602151:role/LabRole
+      Runtime: python3.7
+      Tags:
+        - Key: DEV
+          Value: CF
+      Timeout: 130
+
+  APICallLambda:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - SecretsManager
+      - SourceDBTable
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: csci-s3-lambda-cf-zip
+        S3Key: NewsAPI.py.zip
+      Description: THE NEWS API LAMBDA
+      FunctionName: CF_NEWS_API
+      Handler: NewsAPI.lambda_handler
+      Role: arn:aws:iam::637592602151:role/LabRole
+      Runtime: python3.7
+      Tags:
+        - Key: DEV
+          Value: CF
+      Timeout: 130
+
+  DBS3AthenaTrigger :
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: csci-s3-lambda-cf-zip
+        S3Key: DB-S3AthenaTrigger.py.zip
+      Description: Athena processing Lambda for db data source
+      FunctionName: DBS3AthenaTrigger_CF
+      Handler: DB-S3AthenaTrigger.lambda_handler
+      Role: arn:aws:iam::637592602151:role/LabRole
+      Runtime: python3.7
+      Tags:
+        - Key: DEV
+          Value: CF
+      Timeout: 130
+
+  S3AthenaTrigger :
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: csci-s3-lambda-cf-zip
+        S3Key: S3AthenaTrigger.py.zip
+      Description: Athena processing Lambda for s3 data source
+      FunctionName: S3AthenaTrigger_CF
+      Handler: S3AthenaTrigger.lambda_handler
+      Role: arn:aws:iam::637592602151:role/LabRole
+      Runtime: python3.7
+      Tags:
+        - Key: DEV
+          Value: CF
+      Timeout: 130  
+
+Outputs:
+  LambdaName:
+    Value: !Ref APICallLambda
+  SecretName:
+    Value: !Ref SecretsManager
+  SourceDB:
+    Value: !Ref SourceDBTable
+  SourceDBTrigger:
+    Value: !Ref DynamoDBTrigger
+  DBS3AthenaTrigger:
+    Value: !Ref DBS3AthenaTrigger
+  S3AthenaTrigger:
+    Value: !Ref S3AthenaTrigger      

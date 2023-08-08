@@ -1,0 +1,79 @@
+{
+    "Comment": "A description of my state machine",
+    "StartAt": "StartCrawler",
+    "States": {
+        "StartCrawler": {
+            "Type": "Task",
+            "Parameters": {
+                "Name": "Athena-S3-crawler-cf"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+            "Next": "GetCrawler"
+        },
+        "GetCrawler": {
+            "Type": "Task",
+            "Parameters": {
+                "Name": "Athena-S3-crawler-cf"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
+            "Next": "Choice"
+        },
+        "Choice": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.Crawler.State",
+                    "StringEquals": "RUNNING",
+                    "Next": "Wait"
+                }
+            ],
+            "Default": "Athena StartQueryExecution"
+        },
+        "Wait": {
+            "Type": "Wait",
+            "Seconds": 20,
+            "Next": "GetCrawler"
+        },
+        "Athena StartQueryExecution": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::athena:startQueryExecution.sync",
+            "Parameters": {
+                "QueryString": "SELECT * FROM \"s3-level2-athena-store-cf\".\"s3_data_source\" LIMIT 10;",
+                "WorkGroup": "primary",
+                "ResultConfiguration": {
+                    "OutputLocation": "s3://athena-source-extract-cf/S3-QUERY-RESULTS/"
+                }
+            },
+            "Next": "Athena GetQueryExecution"
+        },
+        "Athena GetQueryExecution": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::athena:getQueryExecution",
+            "Parameters": {
+                "QueryExecutionId.$": "$.QueryExecution.QueryExecutionId"
+            },
+            "Next": "Athena GetQueryResults"
+        },
+        "Athena GetQueryResults": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::athena:getQueryResults",
+            "Parameters": {
+                "MaxResults": 20,
+                "QueryExecutionId.$": "$.QueryExecution.QueryExecutionId"
+            },
+            "Next": "SNS Publish"
+        },
+        "SNS Publish": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::sns:publish",
+            "Parameters": {
+                "TopicArn": "arn:aws:sns:us-east-1:637592602151:Customer-Data",
+                "Message": {
+                    "Message.$": "$.ResultSet.Rows",
+                    "TopicArn": "arn:aws:sns:ca-central-1:569029980056:Customer-Data"
+                }
+            },
+            "End": true
+        }
+    }
+}

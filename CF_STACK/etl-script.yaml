@@ -1,0 +1,37 @@
+Resources:
+  DBGlueJob:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: MY-DB-FILETER-JOB-CF
+      Role: LabRole
+      Command:
+        Name: glueetl
+        ScriptLocation: s3://csci-s3-lambda-cf-zip/etlscripts/MY-DB-FILETER-JOB.py
+      DefaultArguments:
+        "--TempDir": "s3://data-source-extract-cf/DB-data-source/"
+        "--enable-metrics": ""
+        "--job-bookmark-option": "job-bookmark-disable"
+      GlueVersion: "3.0"
+
+  S3GlueJob:
+      Type: AWS::Glue::Job
+      Properties:
+        Name: S3-SOURCE-ETL-JOB-CF
+        Role: LabRole
+        Command:
+          Name: glueetl
+          ScriptLocation: s3://csci-s3-lambda-cf-zip/etlscripts/S3-SOURCE-ETL-JOB.py
+        DefaultArguments:
+          "--TempDir": "s3://data-source-extract-cf/S3-data-source/"
+          "--enable-metrics": ""
+          "--job-bookmark-option": "job-bookmark-disable"
+        GlueVersion: "3.0"
+
+Outputs:
+  DBGlueJobName:
+    Description: Glue Job Name for DB source
+    Value: !Ref DBGlueJob
+
+  S3GlueJobName:
+    Description: Glue Job Name for S3 source
+    Value: !Ref S3GlueJob

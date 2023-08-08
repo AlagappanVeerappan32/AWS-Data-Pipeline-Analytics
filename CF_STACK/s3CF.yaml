@@ -1,0 +1,43 @@
+Resources:
+  Datasource2:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: data-source-s3-2-cf
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
+
+  ExtractETLJobSource:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: data-source-extract-cf
+
+
+  AthenaDataSource:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: athena-source-extract-cf
+
+  CustomerDataCF:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: MyCFTopic
+
+  MySNSTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: alexedge38@gmail.com
+      TopicArn: !Ref CustomerDataCF
+
+Outputs:
+  Topic:
+    Value: !Ref CustomerDataCF
+  Subscription:
+    Value: !Ref MySNSTopicSubscription
+  S3dataSource:
+    Value: !Ref Datasource2
+  ETLJobSource:
+    Value: !Ref ExtractETLJobSource
+  AthenaResults:
+    Value: !Ref AthenaDataSource
