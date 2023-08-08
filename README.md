@@ -42,7 +42,7 @@ The main objective of this project is to establish a comprehensive data pipeline
 - AWS CLI configured with the necessary permissions.
 
 ### Installation
-1. Clone this repository: `git clone <repository_url>`
+1. Clone this repository
 2. Configure your AWS credentials: Follow [AWS CLI Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
 3. Set up your data pipeline by creating Glue jobs, Athena queries, and QuickSight visualizations.
 
