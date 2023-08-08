@@ -52,7 +52,8 @@ The main objective of this project is to establish a comprehensive data pipeline
 - Query data using AWS Athena to perform various analysis tasks.
 - Create intuitive dashboards and visualizations using Amazon QuickSight.
 
-<img width="1024" alt="Screenshot 2023-08-08 at 7 12 54 PM" src="https://github.com/AlagappanVeerappan32/AWS-Data-Pipeline-Analytics/assets/133504573/5723cb62-d36b-437d-8b5a-e6299941e179">
+<img width="1172" alt="Screenshot 2023-08-08 at 7 14 22 PM" src="https://github.com/AlagappanVeerappan32/AWS-Data-Pipeline-Analytics/assets/133504573/a3009c08-292b-4050-b303-f77f50e7b890">
+
 
 ## Notes
 - Ensure to properly configure AWS services to avoid potential issues during data processing.
